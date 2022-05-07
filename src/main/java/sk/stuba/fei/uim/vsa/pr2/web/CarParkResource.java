@@ -16,10 +16,12 @@ import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.MessageDto;
 import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.ParkingSpotDto;
 import sk.stuba.fei.uim.vsa.pr2.web.response.factory.CarParkFactory;
 import sk.stuba.fei.uim.vsa.pr2.web.response.factory.CarParkFloorFactory;
+import sk.stuba.fei.uim.vsa.pr2.web.response.factory.ParkingSpotFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Path("/carparks")
 public class CarParkResource {
@@ -29,6 +31,7 @@ public class CarParkResource {
     private final ObjectMapper json = new ObjectMapper();
     private final CarParkFactory factory = new CarParkFactory();
     private final CarParkFloorFactory floorFactory = new CarParkFloorFactory();
+    private final ParkingSpotFactory spotFactory = new ParkingSpotFactory();
 
 
     @GET
@@ -195,6 +198,134 @@ public class CarParkResource {
                     .status(Response.Status.BAD_REQUEST)
                     .build();
         }
+    }
+
+    @POST
+    @Path("/{id}/floors")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createFloors(@PathParam("id") Long id, String body){
+        if(id==null){
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .build();
+        }
+        try {
+            CarParkFloorDto dto = json.readValue(body, CarParkFloorDto.class);
+            CarParkFloor carParkFloor = carParkService.createCarParkFloor(id, dto.getIdentifier());
+            if(carParkFloor==null){
+                return Response
+                        .status(Response.Status.BAD_REQUEST)
+                        .build();
+            }
+            if(dto.getSpots()!=null) {
+                for (ParkingSpotDto spot : dto.getSpots()) {
+                    ParkingSpot parkingSpot = carParkService.createParkingSpot(id, dto.getIdentifier(), spot.getIdentifier());
+                    if(parkingSpot == null) {
+                        carParkService.deleteCarParkFloor(carParkFloor.getCarParkFloorId());
+                        return Response
+                                .status(Response.Status.BAD_REQUEST)
+                                .build();
+                    }
+                }
+            }
+            CarParkFloor carParkFloorResponse = carParkService.getCarParkFloor(carParkFloor.getCarParkFloorId());
+            return Response
+                    .status(Response.Status.CREATED)
+                    .entity(json.writeValueAsString(floorFactory.transformToDto(carParkFloorResponse)))
+                    .build();
+        } catch (JsonProcessingException e) {
+            return Response.noContent().build();
+        }
+    }
+
+    @DELETE
+    @Path("/{id}/floors/{identifier}")
+    public Response deleteFloor(@PathParam("id") Long id, @PathParam("identifier") String identifier){
+        if(id==null){return Response.noContent().build();}
+        List<CarParkFloor> floors = carParkService.getCarParkFloors(id);
+        if(floors==null){
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .build();
+        }
+        for(CarParkFloor floor: floors){
+            if(floor.getFloorIdentifier().equals(identifier)){
+                carParkService.deleteCarParkFloor(floor.getCarParkFloorId());
+                return Response
+                        .status(Response.Status.NO_CONTENT)
+                        .build();
+            }
+        }
+        return Response
+                .status(Response.Status.BAD_REQUEST)
+                .build();
+    }
+
+    @GET
+    @Path("/{id}/spots")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getSpots(@PathParam("id") Long id, @QueryParam("free") Boolean free){
+        CarPark carPark = carParkService.getCarPark(id);
+        if(carPark==null){
+            return Response
+                    .status(Response.Status.NOT_FOUND)
+                    .build();
+        }
+        List<ParkingSpot> spots = new ArrayList<>();
+        if(free!=null) {
+            //ak je free nieco divne
+            if (free) {
+                spots.addAll(carParkService.getAvailableSpots(carPark.getCarParkId()));
+            } else {
+                spots.addAll(carParkService.getOccupiedSpots(carPark.getCarParkId()));
+            }
+        }else {
+            //test ked je null floors
+            for (CarParkFloor carParkFloor : carPark.getFloors()) {
+                List<ParkingSpot> parkingSpots = carParkService.getParkingSpots(carPark.getCarParkId(), carParkFloor.getFloorIdentifier());
+                spots.addAll(parkingSpots);
+            }
+        }
+        List<ParkingSpotDto> parkingSpotDtos = new ArrayList<>();
+        for(ParkingSpot ps : spots){
+            parkingSpotDtos.add(spotFactory.transformToDto(ps));
+        }
+        return Response
+                .status(Response.Status.OK)
+                .entity(parkingSpotDtos)
+                .build();
+
+    }
+
+    @GET
+    @Path("/{id}/floors/{identifier}/spots")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getSpots(@PathParam("id")Long id, @PathParam("identifier") String identifier){
+        if(id==null || identifier == null){
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .build();
+        }
+        CarPark carPark = carParkService.getCarPark(id);
+        for(CarParkFloor cpf: carPark.getFloors()){
+            if(cpf.getFloorIdentifier().equals(identifier)){
+                List<ParkingSpot> spots = carParkService.getParkingSpots(id, identifier);
+                if(spots==null){
+                    return Response
+                            .status(Response.Status.NOT_FOUND)
+                            .build();
+                }
+                List<ParkingSpotDto> spotDtos = spots.stream().map(spotFactory::transformToDto).collect(Collectors.toList());
+                return Response
+                        .status(Response.Status.OK)
+                        .entity(spotDtos)
+                        .build();
+            }
+        }
+        return Response
+                .status(Response.Status.NOT_FOUND)
+                .build();
     }
 
 }

@@ -291,6 +291,37 @@ public class CarParkService extends  AbstractCarParkService{
         return map;
     }
 
+    public List<ParkingSpot> getAvailableSpots(Long carParkId){
+        CarPark carPark = getCarPark(carParkId);
+        List<ParkingSpot> spots = new ArrayList<>();
+        if(carPark!=null){
+            for(CarParkFloor carParkFloor: carPark.getFloors()){
+                for(ParkingSpot spot: carParkFloor.getParkingSpots()){
+                    if(spot.isAvailable()){
+                        spots.add(spot);
+                    }
+                }
+            }
+            return spots;
+        }
+        return null;
+    }
+
+    public List<ParkingSpot> getOccupiedSpots(Long carParkId){
+        CarPark carPark = getCarPark(carParkId);
+        List<ParkingSpot> spots = new ArrayList<>();
+        if(carPark!=null){
+            for(CarParkFloor carParkFloor: carPark.getFloors()){
+                for(ParkingSpot spot: carParkFloor.getParkingSpots()){
+                    if(spot.isOccupied()){
+                        spots.add(spot);
+                    }
+                }
+            }
+            return spots;
+        }
+        return null;
+    }
 
     public Map<String, List<ParkingSpot>> getAvailableParkingSpots(String carParkName) {
         Object carPark = getCarPark(carParkName);

@@ -7,7 +7,7 @@ public class ParkingSpotDto extends Dto{
     private String carParkFloor;
     private Long carPark;
     //type
-//    private Boolean free;
+    private Boolean free;
 //    private List<ReservationDto> reservations;
 
     public String getIdentifier() {
@@ -34,13 +34,12 @@ public class ParkingSpotDto extends Dto{
         this.carPark = carPark;
     }
 
-//    public Boolean getFree() {
-//        return free;
-//    }
-//
-//    public void setFree(Boolean free) {
-//        this.free = free;
-//    }
+    public Boolean getFree() {
+        return free;
+    }
+    public void setFree(Boolean free) {
+        this.free = free;
+    }
 //
 //    public List<ReservationDto> getReservations() {
 //        return reservations;

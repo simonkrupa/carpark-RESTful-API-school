@@ -13,7 +13,7 @@ public class CarParkFloorFactory implements ResponseFactory<CarParkFloor, CarPar
         CarParkFloorDto carParkFloorDto = new CarParkFloorDto();
         carParkFloorDto.setId(entity.getCarParkFloorId());
         carParkFloorDto.setIdentifier(entity.getFloorIdentifier());
-        carParkFloorDto.setCarPark(entity.getCarParkFloorId());
+        carParkFloorDto.setCarPark(entity.getCarPark().getCarParkId());
         ParkingSpotFactory factory = new ParkingSpotFactory();
         carParkFloorDto.setSpots(entity.getParkingSpots().stream().map(factory::transformToDto).collect(Collectors.toList()));
         return carParkFloorDto;
