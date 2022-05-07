@@ -328,4 +328,47 @@ public class CarParkResource {
                 .build();
     }
 
+    @POST
+    @Path("/{id}/floors/{identifier}/spots")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createSpot(@PathParam("id") Long id, @PathParam("identifier") String identifier, String body){
+        if(id == null && identifier == null){
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .build();
+        }
+        try {
+            ParkingSpotDto dto = json.readValue(body, ParkingSpotDto.class);
+            CarPark carPark = carParkService.getCarPark(id);
+            if(carPark==null){
+                return Response
+                        .status(Response.Status.BAD_REQUEST)
+                        .build();
+            }
+            for(CarParkFloor carParkFloor: carPark.getFloors()){
+                if(carParkFloor.getFloorIdentifier().equals(identifier)){
+                    ParkingSpot parkingSpot = carParkService.createParkingSpot(id, identifier, dto.getIdentifier());
+                    if(parkingSpot==null){
+                        return Response
+                                .status(Response.Status.BAD_REQUEST)
+                                .build();
+                    }
+                    ParkingSpotDto spotDto = spotFactory.transformToDto(parkingSpot);
+                    return Response
+                            .status(Response.Status.CREATED)
+                            .entity(spotDto)
+                            .build();
+                }
+            }
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .build();
+        } catch (JsonProcessingException e) {
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .build();
+        }
+    }
+
 }
