@@ -5,6 +5,13 @@
     <persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <!-- TODO Domain Classes -->
+        <class>sk.stuba.fei.uim.vsa.pr2.entities.Car</class>
+        <class>sk.stuba.fei.uim.vsa.pr2.entities.CarPark</class>
+        <class>sk.stuba.fei.uim.vsa.pr2.entities.CarParkFloor</class>
+        <class>sk.stuba.fei.uim.vsa.pr2.entities.CarType</class>
+        <class>sk.stuba.fei.uim.vsa.pr2.entities.ParkingSpot</class>
+        <class>sk.stuba.fei.uim.vsa.pr2.entities.User</class>
+        <class>sk.stuba.fei.uim.vsa.pr2.entities.Reservation</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
