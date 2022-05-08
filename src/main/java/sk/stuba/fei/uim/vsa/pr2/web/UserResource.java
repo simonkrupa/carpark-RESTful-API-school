@@ -10,10 +10,9 @@ import sk.stuba.fei.uim.vsa.pr2.entities.Car;
 import sk.stuba.fei.uim.vsa.pr2.entities.CarPark;
 import sk.stuba.fei.uim.vsa.pr2.entities.User;
 import sk.stuba.fei.uim.vsa.pr2.service.CarParkService;
-import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.CarDto;
-import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.CarParkDto;
-import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.UserDto;
+import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.*;
 import sk.stuba.fei.uim.vsa.pr2.web.response.factory.UserFactory;
+import sk.stuba.fei.uim.vsa.pr2.web.response.factory.UserIdFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +24,7 @@ public class UserResource {
     private final CarParkService carParkService = new CarParkService();
     private final ObjectMapper json = new ObjectMapper();
     private final UserFactory factory = new UserFactory();
+    private final UserIdFactory userIdFactory = new UserIdFactory();
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -37,8 +37,8 @@ public class UserResource {
                                 .status(Response.Status.NOT_FOUND)
                                 .build();
                     }
-                    List<UserDto> userDtos = new ArrayList<>();
-                    userDtos.add(factory.transformToDto(user));
+                    List<UserIdDto> userDtos = new ArrayList<>();
+                    userDtos.add(userIdFactory.transformToDto(user));
                     return Response
                             .status(Response.Status.OK)
                             .entity(userDtos)
@@ -50,7 +50,7 @@ public class UserResource {
                             .status(Response.Status.BAD_REQUEST)
                             .build();
                 }
-                List<UserDto> userDtos = users.stream().map(factory::transformToDto).collect(Collectors.toList());
+                List<UserIdDto> userDtos = users.stream().map(userIdFactory::transformToDto).collect(Collectors.toList());
                 return Response
                         .status(Response.Status.OK)
                         .entity(userDtos)
@@ -73,7 +73,7 @@ public class UserResource {
                         .status(Response.Status.NOT_FOUND)
                         .build();
             }
-            UserDto userDto = factory.transformToDto(user);
+            UserIdDto userDto = userIdFactory.transformToDto(user);
             return Response
                     .status(Response.Status.OK)
                     .entity(userDto)
@@ -135,7 +135,8 @@ public class UserResource {
                 }
             }
             User userResponse = carParkService.getUser(user.getUserId());
-            UserDto userDto1 = factory.transformToDto(userResponse);
+
+            UserIdDto userDto1 = userIdFactory.transformToDto(userResponse);
             return Response
                     .status(Response.Status.CREATED)
                     .entity(userDto1)

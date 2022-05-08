@@ -31,12 +31,12 @@ public class CarResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAll(@QueryParam("user") Long id, @QueryParam("vrp") String vrp) {
-        List<CarDto> carDtos = new ArrayList<>();
+        List<CarDtoId> carDtos = new ArrayList<>();
         if (id == null && vrp == null) {
             try {
                 List<Car> cars = carParkService.getCars();
                 cars.forEach(car -> {
-                    CarDto carDto = factory.transformToDto(car);
+                    CarDtoId carDto = carIdFactory.transformToDto(car);
                     carDtos.add(carDto);
                 });
                 return Response
@@ -64,8 +64,8 @@ public class CarResource {
                 }
                 for (Car c : cars) {
                     if (c.getVehicleRegistrationPlate().equals(car.getVehicleRegistrationPlate())) {
-                        CarDto carDto1 = factory.transformToDto(car);
-                        List<CarDto> carDtos1 = new ArrayList<>();
+                        CarDtoId carDto1 = carIdFactory.transformToDto(car);
+                        List<CarDtoId> carDtos1 = new ArrayList<>();
                         carDtos1.add(carDto1);
                         return Response
                                 .status(Response.Status.OK)
@@ -89,7 +89,7 @@ public class CarResource {
                             .status(Response.Status.NOT_FOUND)
                             .build();
                 }
-                carDtos.add(factory.transformToDto(car));
+                carDtos.add(carIdFactory.transformToDto(car));
                 return Response
                         .status(Response.Status.OK)
                         .entity(carDtos)
@@ -107,7 +107,7 @@ public class CarResource {
                             .status(Response.Status.NOT_FOUND)
                             .build();
                 }
-                List<CarDto> carDtos1 = cars.stream().map(factory::transformToDto).collect(Collectors.toList());
+                List<CarDtoId> carDtos1 = cars.stream().map(carIdFactory::transformToDto).collect(Collectors.toList());
                 return Response
                         .status(Response.Status.OK)
                         .entity(carDtos1)
@@ -143,7 +143,7 @@ public class CarResource {
             }
             return Response
                     .status(Response.Status.OK)
-                    .entity(factory.transformToDto(car))
+                    .entity(carIdFactory.transformToDto(car))
                     .build();
         }catch (Exception e){
             return Response
@@ -160,6 +160,14 @@ public class CarResource {
             CarDto dto = json.readValue(body, CarDto.class);
             if(dto.getOwner()!=null) {
                 User user = carParkService.getUser(dto.getOwner().getEmail());
+                if(dto.getOwner().getEmail()==null) {
+                    if(dto.getOwner().getId()==null){
+                        return Response
+                                .status(Response.Status.BAD_REQUEST)
+                                .build();
+                    }
+                    user = carParkService.getUser(dto.getOwner().getId());
+                }
                 if(user==null){
                     user = carParkService.createUser(dto.getOwner().getFirstName(), dto.getOwner().getLastName(), dto.getOwner().getEmail());
                     if(user==null){
@@ -170,7 +178,7 @@ public class CarResource {
                 }
                 Car car = carParkService.createCar(user.getUserId(), dto.getBrand(), dto.getModel(), dto.getColour(), dto.getVrp());
                 if(car==null){
-                    carParkService.deleteUser(user.getUserId());
+//                    carParkService.deleteUser(user.getUserId());         TODO skontrolovat
                     return Response
                             .status(Response.Status.BAD_REQUEST)
                             .build();
