@@ -117,7 +117,7 @@ public class UserResource {
     public Response create(String body){
         try{
             UserDto userDto = json.readValue(body, UserDto.class);
-            User user = carParkService.createUser(userDto.getFirstname(), userDto.getLastname(), userDto.getEmail());
+            User user = carParkService.createUser(userDto.getFirstName(), userDto.getLastName(), userDto.getEmail());
             if(user==null){
                 return Response
                         .status(Response.Status.BAD_REQUEST)

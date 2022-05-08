@@ -161,7 +161,7 @@ public class CarResource {
             if(dto.getOwner()!=null) {
                 User user = carParkService.getUser(dto.getOwner().getEmail());
                 if(user==null){
-                    user = carParkService.createUser(dto.getOwner().getFirstname(), dto.getOwner().getLastname(), dto.getOwner().getEmail());
+                    user = carParkService.createUser(dto.getOwner().getFirstName(), dto.getOwner().getLastName(), dto.getOwner().getEmail());
                     if(user==null){
                         return Response
                                 .status(Response.Status.BAD_REQUEST)

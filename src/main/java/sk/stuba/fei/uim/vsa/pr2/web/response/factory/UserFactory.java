@@ -9,8 +9,9 @@ public class UserFactory implements ResponseFactory<User, UserDto> {
     @Override
     public UserDto transformToDto(User entity) {
         UserDto userDto = new UserDto();
-        userDto.setFirstname(entity.getFirstname());
-        userDto.setLastname(entity.getLastname());
+        userDto.setId(entity.getUserId());
+        userDto.setFirstName(entity.getFirstname());
+        userDto.setLastName(entity.getLastname());
         userDto.setEmail(entity.getEmail());
         CarFactory carFactory = new CarFactory();
         if(entity.getCars()!=null) {

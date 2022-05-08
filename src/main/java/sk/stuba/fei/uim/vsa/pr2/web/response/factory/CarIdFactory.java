@@ -8,6 +8,7 @@ public class CarIdFactory implements ResponseFactory<Car, CarDtoId> {
     @Override
     public CarDtoId transformToDto(Car entity) {
         CarDtoId carDtoId = new CarDtoId();
+        carDtoId.setId(entity.getCarId());
         carDtoId.setOwner(entity.getUser().getUserId());
         carDtoId.setBrand(entity.getBrand());
         carDtoId.setColour(entity.getColour());
