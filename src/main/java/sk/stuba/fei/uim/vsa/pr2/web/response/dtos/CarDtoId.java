@@ -4,13 +4,13 @@ import sk.stuba.fei.uim.vsa.pr2.entities.User;
 
 import java.util.List;
 
-public class CarDto extends Dto{
+public class CarDtoId extends Dto{
     private String brand;
     private String model;
     private String vrp;
     private String colour;
     //type
-    private UserDto owner;
+    private Long owner;
 //    private List<ReservationDto> reservations;
 
     public String getBrand() {
@@ -45,19 +45,11 @@ public class CarDto extends Dto{
         this.colour = colour;
     }
 
-    public UserDto getOwner() {
+    public Long getOwner() {
         return owner;
     }
 
-    public void setOwner(UserDto owner) {
+    public void setOwner(Long owner) {
         this.owner = owner;
     }
-
-//    public List<ReservationDto> getReservations() {
-//        return reservations;
-//    }
-//
-//    public void setReservations(List<ReservationDto> reservations) {
-//        this.reservations = reservations;
-//    }
 }

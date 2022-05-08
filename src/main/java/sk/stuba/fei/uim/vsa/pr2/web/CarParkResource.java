@@ -149,7 +149,9 @@ public class CarParkResource {
                     .entity(json.writeValueAsString(factory.transformToDto(carParkResponse)))
                     .build();
         } catch (JsonProcessingException e) {
-            return Response.noContent().build();
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .build();
         }
     }
 
