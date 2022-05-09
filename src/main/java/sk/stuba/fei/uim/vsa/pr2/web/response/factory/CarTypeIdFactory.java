@@ -12,9 +12,7 @@ public class CarTypeIdFactory implements ResponseFactory<CarType, CarTypeIdDto> 
         CarTypeIdDto carTypeIdDto = new CarTypeIdDto();
         carTypeIdDto.setId(entity.getCarTypeId());
         carTypeIdDto.setName(entity.getName());
-        List<Long> ids = new ArrayList<>();
-        entity.getCars().forEach(car -> ids.add(car.getCarId()));
-        carTypeIdDto.setCars(ids);
+
         return carTypeIdDto;
     }
 

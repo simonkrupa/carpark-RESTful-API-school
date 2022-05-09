@@ -5,7 +5,6 @@ import java.util.List;
 public class CarTypeIdDto extends Dto{
 
     private String name;
-    private List<Long> cars;
 
     public String getName() {
         return name;
@@ -15,11 +14,5 @@ public class CarTypeIdDto extends Dto{
         this.name = name;
     }
 
-    public List<Long> getCars() {
-        return cars;
-    }
 
-    public void setCars(List<Long> cars) {
-        this.cars = cars;
-    }
 }

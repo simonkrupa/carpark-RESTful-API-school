@@ -4,7 +4,7 @@ import java.util.List;
 
 public class CarTypeDto extends Dto{
     private String name;
-    private List<CarDtoId> cars;
+
 
     public String getName() {
         return name;
@@ -14,11 +14,5 @@ public class CarTypeDto extends Dto{
         this.name = name;
     }
 
-    public List<CarDtoId> getCars() {
-        return cars;
-    }
 
-    public void setCars(List<CarDtoId> cars) {
-        this.cars = cars;
-    }
 }

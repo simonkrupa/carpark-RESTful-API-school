@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import sk.stuba.fei.uim.vsa.pr2.entities.Car;
-import sk.stuba.fei.uim.vsa.pr2.entities.CarPark;
-import sk.stuba.fei.uim.vsa.pr2.entities.CarParkFloor;
-import sk.stuba.fei.uim.vsa.pr2.entities.ParkingSpot;
+import sk.stuba.fei.uim.vsa.pr2.entities.*;
 import sk.stuba.fei.uim.vsa.pr2.service.CarParkService;
 import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.CarParkDto;
 import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.CarParkFloorDto;
@@ -112,6 +109,7 @@ public class CarParkResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(String body) {
         try {
+            Boolean createdCarType = false;
             CarParkDto dto = json.readValue(body, CarParkDto.class);
             CarPark carPark = factory.transformToEntity(dto);
             CarPark cp = carParkService.createCarPark(carPark.getName(), carPark.getAddress(), carPark.getPricePerHour());
@@ -130,11 +128,29 @@ public class CarParkResource {
                                 .build();
                     }
                     if (cpf.getSpots() != null) {
-//                        cpf.getSpots().forEach(spot -> carParkService.createParkingSpot(cp.getCarParkId(), cpf.getIdentifier(), spot.getIdentifier()));
+                        ParkingSpot ps = new ParkingSpot();
                         for(ParkingSpotDto parkingSpot : cpf.getSpots()){
-                            ParkingSpot ps = carParkService.createParkingSpot(cp.getCarParkId(), cpf.getIdentifier(), parkingSpot.getIdentifier());
+                            if(parkingSpot.getType()!=null){
+                                CarType carType = carParkService.getCarType(parkingSpot.getType().getName());
+                                if(carType==null){
+                                    carType = carParkService.createCarType(parkingSpot.getType().getName());
+                                    createdCarType = true;
+                                    if(carType==null){
+                                        carParkService.deleteCarPark(cp.getCarParkId());
+                                        return Response
+                                                .status(Response.Status.BAD_REQUEST)
+                                                .build();
+                                    }
+                                }
+                                ps = carParkService.createParkingSpot(cp.getCarParkId(), cpf.getIdentifier(), parkingSpot.getIdentifier(), carType.getCarTypeId());
+                            }else {
+                                ps = carParkService.createParkingSpot(cp.getCarParkId(), cpf.getIdentifier(), parkingSpot.getIdentifier());
+                            }
                             if(ps==null){
                                 carParkService.deleteCarPark(cp.getCarParkId());
+                                if(createdCarType){
+                                    carParkService.deleteCarType(carParkService.getCarType(parkingSpot.getType().getName()).getCarTypeId());
+                                }
                                 return Response
                                         .status(Response.Status.BAD_REQUEST)
                                         .build();
@@ -213,6 +229,7 @@ public class CarParkResource {
                     .build();
         }
         try {
+            Boolean createdCarType = false;
             CarParkFloorDto dto = json.readValue(body, CarParkFloorDto.class);
             CarParkFloor carParkFloor = carParkService.createCarParkFloor(id, dto.getIdentifier());
             if(carParkFloor==null){
@@ -222,9 +239,28 @@ public class CarParkResource {
             }
             if(dto.getSpots()!=null) {
                 for (ParkingSpotDto spot : dto.getSpots()) {
-                    ParkingSpot parkingSpot = carParkService.createParkingSpot(id, dto.getIdentifier(), spot.getIdentifier());
+                    ParkingSpot parkingSpot = new ParkingSpot();
+                    if(spot.getType()!=null){
+                        CarType carType = carParkService.getCarType(spot.getType().getName());
+                        if(carType==null){
+                            carType = carParkService.createCarType(spot.getType().getName());
+                            createdCarType = true;
+                            if(carType==null){
+                                carParkService.deleteCarParkFloor(carParkFloor.getCarParkFloorId());
+                                return Response
+                                        .status(Response.Status.BAD_REQUEST)
+                                        .build();
+                            }
+                        }
+                        parkingSpot = carParkService.createParkingSpot(id, dto.getIdentifier(), spot.getIdentifier(), carType.getCarTypeId());
+                    }else {
+                        parkingSpot = carParkService.createParkingSpot(id, dto.getIdentifier(), spot.getIdentifier());
+                    }
                     if(parkingSpot == null) {
                         carParkService.deleteCarParkFloor(carParkFloor.getCarParkFloorId());
+                        if(createdCarType){
+                            carParkService.deleteCarType(carParkService.getCarType(spot.getType().getName()).getCarTypeId());
+                        }
                         return Response
                                 .status(Response.Status.BAD_REQUEST)
                                 .build();
@@ -346,6 +382,7 @@ public class CarParkResource {
                     .build();
         }
         try {
+            Boolean createdCarType = false;
             ParkingSpotDto dto = json.readValue(body, ParkingSpotDto.class);
             CarPark carPark = carParkService.getCarPark(id);
             if(carPark==null){
@@ -355,8 +392,26 @@ public class CarParkResource {
             }
             for(CarParkFloor carParkFloor: carPark.getFloors()){
                 if(carParkFloor.getFloorIdentifier().equals(identifier)){
-                    ParkingSpot parkingSpot = carParkService.createParkingSpot(id, identifier, dto.getIdentifier());
+                    ParkingSpot parkingSpot = new ParkingSpot();
+                    if(dto.getType()!=null){
+                        CarType carType = carParkService.getCarType(dto.getType().getName());
+                        if(carType==null){
+                            carType = carParkService.createCarType(dto.getType().getName());
+                            createdCarType = true;
+                            if(carType==null){
+                                return Response
+                                        .status(Response.Status.BAD_REQUEST)
+                                        .build();
+                            }
+                        }
+                        parkingSpot = carParkService.createParkingSpot(id, identifier, dto.getIdentifier(), carType.getCarTypeId());
+                    }else {
+                        parkingSpot = carParkService.createParkingSpot(id, identifier, dto.getIdentifier());
+                    }
                     if(parkingSpot==null){
+                        if(createdCarType){
+                            carParkService.deleteCarType(carParkService.getCarType(dto.getType().getName()).getCarTypeId());
+                        }
                         return Response
                                 .status(Response.Status.BAD_REQUEST)
                                 .build();
