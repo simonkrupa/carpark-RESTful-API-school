@@ -6,9 +6,18 @@ public class ParkingSpotDto extends Dto{
     private String identifier;
     private String carParkFloor;
     private Long carPark;
-    //type
+    private CarTypeDto type;
     private Boolean free;
 //    private List<ReservationDto> reservations;
+
+
+    public CarTypeDto getType() {
+        return type;
+    }
+
+    public void setType(CarTypeDto type) {
+        this.type = type;
+    }
 
     public String getIdentifier() {
         return identifier;

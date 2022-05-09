@@ -14,6 +14,7 @@ public class CarIdFactory implements ResponseFactory<Car, CarDtoId> {
         carDtoId.setColour(entity.getColour());
         carDtoId.setModel(entity.getModel());
         carDtoId.setVrp(entity.getVehicleRegistrationPlate());
+        carDtoId.setType(entity.getCarType().getCarTypeId());
         return carDtoId;
     }
 

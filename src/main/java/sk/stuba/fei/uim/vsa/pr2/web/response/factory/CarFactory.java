@@ -14,6 +14,8 @@ public class CarFactory implements ResponseFactory<Car, CarDto> {
         carDto.setColour(entity.getColour());
         carDto.setModel(entity.getModel());
         carDto.setVrp(entity.getVehicleRegistrationPlate());
+        CarTypeFactory carTypeFactory = new CarTypeFactory();
+        carDto.setType(carTypeFactory.transformToDto(entity.getCarType()));
         return carDto;
     }
 

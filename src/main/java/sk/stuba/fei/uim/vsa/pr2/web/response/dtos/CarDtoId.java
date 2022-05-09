@@ -9,9 +9,18 @@ public class CarDtoId extends Dto{
     private String model;
     private String vrp;
     private String colour;
-    //type
+    private Long type;
     private Long owner;
 //    private List<ReservationDto> reservations;
+
+
+    public Long getType() {
+        return type;
+    }
+
+    public void setType(Long type) {
+        this.type = type;
+    }
 
     public String getBrand() {
         return brand;

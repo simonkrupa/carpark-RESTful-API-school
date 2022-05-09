@@ -9,9 +9,18 @@ public class CarDto extends Dto{
     private String model;
     private String vrp;
     private String colour;
-    //type
+    private CarTypeDto type;
     private UserDto owner;
 //    private List<ReservationDto> reservations;
+
+
+    public CarTypeDto getType() {
+        return type;
+    }
+
+    public void setType(CarTypeDto type) {
+        this.type = type;
+    }
 
     public String getBrand() {
         return brand;

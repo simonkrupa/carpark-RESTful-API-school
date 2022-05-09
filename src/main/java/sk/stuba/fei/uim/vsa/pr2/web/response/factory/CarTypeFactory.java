@@ -13,8 +13,6 @@ public class CarTypeFactory implements ResponseFactory<CarType, CarTypeDto> {
         CarTypeDto carTypeDto = new CarTypeDto();
         carTypeDto.setId(entity.getCarTypeId());
         carTypeDto.setName(entity.getName());
-//        List<Long> ids = new ArrayList<>();
-//        entity.getCars().forEach(car -> ids.add(car.getCarId()));
         CarIdFactory factory = new CarIdFactory();
         carTypeDto.setCars(entity.getCars().stream().map(factory::transformToDto).collect(Collectors.toList()));
         return carTypeDto;

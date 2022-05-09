@@ -11,6 +11,8 @@ public class ParkingSpotFactory implements ResponseFactory<ParkingSpot, ParkingS
         parkingSpotDto.setCarParkFloor(entity.getFloor().getFloorIdentifier());
         parkingSpotDto.setCarPark(entity.getFloor().getCarPark().getCarParkId());
         parkingSpotDto.setIdentifier(entity.getSpotIdentifier());
+        CarTypeFactory factory = new CarTypeFactory();
+        parkingSpotDto.setType(factory.transformToDto(entity.getCarType()));
         //free
         if(entity.isAvailable()) {
             parkingSpotDto.setFree(true);

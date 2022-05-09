@@ -7,6 +7,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import sk.stuba.fei.uim.vsa.pr2.entities.Car;
 import sk.stuba.fei.uim.vsa.pr2.entities.CarPark;
+import sk.stuba.fei.uim.vsa.pr2.entities.CarType;
 import sk.stuba.fei.uim.vsa.pr2.entities.User;
 import sk.stuba.fei.uim.vsa.pr2.service.CarParkService;
 import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.*;
@@ -157,6 +158,8 @@ public class CarResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(String body) {
         try {
+            Boolean created = false;
+            Boolean createdCarType = false;
             CarDto dto = json.readValue(body, CarDto.class);
             if(dto.getOwner()!=null) {
                 User user = carParkService.getUser(dto.getOwner().getEmail());
@@ -170,18 +173,43 @@ public class CarResource {
                 }
                 if(user==null){
                     user = carParkService.createUser(dto.getOwner().getFirstName(), dto.getOwner().getLastName(), dto.getOwner().getEmail());
+                    created = true;
                     if(user==null){
                         return Response
                                 .status(Response.Status.BAD_REQUEST)
                                 .build();
                     }
                 }
-                Car car = carParkService.createCar(user.getUserId(), dto.getBrand(), dto.getModel(), dto.getColour(), dto.getVrp());
+                Car car = new Car();
+                if(dto.getType()!=null){
+                    CarType carType = carParkService.getCarType(dto.getType().getName());
+                    if(carType==null){
+                        carType = carParkService.createCarType(dto.getType().getName());
+                        createdCarType = true;
+                        if(carType==null){
+                            if(created){
+                                carParkService.deleteUser(user.getUserId());
+                            }
+                            return Response
+                                    .status(Response.Status.BAD_REQUEST)
+                                    .build();
+                        }
+                    }
+                    car = carParkService.createCar(user.getUserId(), dto.getBrand(), dto.getModel(), dto.getColour(), dto.getVrp(), carType.getCarTypeId());
+                }else {
+                    car = carParkService.createCar(user.getUserId(), dto.getBrand(), dto.getModel(), dto.getColour(), dto.getVrp());
+                }
                 if(car==null){
-//                    carParkService.deleteUser(user.getUserId());         TODO skontrolovat
+                    if(created) {
+                        carParkService.deleteUser(user.getUserId());
+                    }
+                    if(createdCarType){
+                        CarType carType2 = carParkService.getCarType(dto.getType().getName());
+                        carParkService.deleteCarType(carType2.getCarTypeId());
+                    }
                     return Response
-                            .status(Response.Status.BAD_REQUEST)
-                            .build();
+                        .status(Response.Status.BAD_REQUEST)
+                        .build();
                 }
                 CarDtoId carResponse = carIdFactory.transformToDto(car);
                 return Response

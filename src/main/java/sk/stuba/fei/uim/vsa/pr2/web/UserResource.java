@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import sk.stuba.fei.uim.vsa.pr2.entities.Car;
 import sk.stuba.fei.uim.vsa.pr2.entities.CarPark;
+import sk.stuba.fei.uim.vsa.pr2.entities.CarType;
 import sk.stuba.fei.uim.vsa.pr2.entities.User;
 import sk.stuba.fei.uim.vsa.pr2.service.CarParkService;
 import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.*;
@@ -125,9 +126,27 @@ public class UserResource {
             }
             if(userDto.getCars()!=null){
                 for(CarDto carDto : userDto.getCars()){
-                    Car car = carParkService.createCar(user.getUserId(), carDto.getBrand(), carDto.getModel(), carDto.getColour(), carDto.getVrp());
+                    Car car = new Car();
+                    if(carDto.getType()!=null){
+                        CarType carType = carParkService.getCarType(carDto.getType().getName());
+                        if(carType==null){
+                            carType = carParkService.createCarType(carDto.getType().getName());
+                            if(carType==null){
+                                carParkService.deleteUser(user.getUserId());
+                                return Response
+                                        .status(Response.Status.BAD_REQUEST)
+                                        .build();
+                            }
+                        }
+                        car = carParkService.createCar(user.getUserId(), carDto.getBrand(), carDto.getModel(), carDto.getColour(), carDto.getVrp(), carType.getCarTypeId());
+                    }else {
+                        car = carParkService.createCar(user.getUserId(), carDto.getBrand(), carDto.getModel(), carDto.getColour(), carDto.getVrp());
+                    }
                     if(car==null){
                         carParkService.deleteUser(user.getUserId());
+                        if(carDto.getType()!=null){
+                            carParkService.deleteCarType(carParkService.getCarType(carDto.getType().getName()).getCarTypeId());
+                        }
                         return Response
                                 .status(Response.Status.BAD_REQUEST)
                                 .build();
