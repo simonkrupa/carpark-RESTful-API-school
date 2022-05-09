@@ -310,6 +310,11 @@ public class CarParkResource {
                     .build();
         }
         CarPark carPark = carParkService.getCarPark(id);
+        if(carPark==null){
+            return Response
+                    .status(Response.Status.NOT_FOUND)
+                    .build();
+        }
         for(CarParkFloor cpf: carPark.getFloors()){
             if(cpf.getFloorIdentifier().equals(identifier)){
                 List<ParkingSpot> spots = carParkService.getParkingSpots(id, identifier);

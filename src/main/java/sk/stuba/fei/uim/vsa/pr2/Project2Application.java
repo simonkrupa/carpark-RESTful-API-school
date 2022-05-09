@@ -18,6 +18,7 @@ public class Project2Application extends Application {
         appClasses.add(ParkingSpotResource.class);
         appClasses.add(CarResource.class);
         appClasses.add(UserResource.class);
+        appClasses.add(CarTypeResource.class);
     }
 
     @Override
