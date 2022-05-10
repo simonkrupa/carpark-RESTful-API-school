@@ -674,6 +674,19 @@ public class CarParkService extends  AbstractCarParkService{
         return null;
     }
 
+    public List<Reservation> getAllReservations(){
+        EntityManager manager = emf.createEntityManager();
+        Query query = manager.createNamedQuery("findAllReservations", Reservation.class);
+        return query.getResultList();
+    }
+
+
+    public Reservation getReservationById(Long reservationId){
+        EntityManager manager =emf.createEntityManager();
+        Reservation reservation = manager.find(Reservation.class, reservationId);
+        manager.close();
+        return reservation;
+    }
 
     public List<Reservation> getReservations(Long parkingSpotId, Date date) {
         EntityManager manager = emf.createEntityManager();
@@ -693,6 +706,26 @@ public class CarParkService extends  AbstractCarParkService{
         return new ArrayList<>();
     }
 
+
+    public List<Reservation> getAllMyReservations(Long userId){
+        EntityManager manager = emf.createEntityManager();
+        User user = manager.find(User.class, userId);
+        manager.close();
+        if(user!=null){
+            List<Reservation> myReservations = new ArrayList<>();
+            List<Car> cars = user.getCars();
+            for(Car c: cars){
+                List<Reservation> myReservation2 = c.getReservations();
+                if(myReservation2!=null) {
+                    for(Reservation r : myReservation2) {
+                        myReservations.add(r);
+                    }
+                }
+            }
+            return myReservations;
+        }
+        return new ArrayList<>();
+    }
 
     public List<Reservation> getMyReservations(Long userId) {
         EntityManager manager = emf.createEntityManager();

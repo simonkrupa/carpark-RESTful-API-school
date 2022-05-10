@@ -8,8 +8,15 @@ public class ParkingSpotDto extends Dto{
     private Long carPark;
     private CarTypeDto type;
     private Boolean free;
-//    private List<ReservationDto> reservations;
+    private List<ReservationIdDto> reservations;
 
+    public List<ReservationIdDto> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<ReservationIdDto> reservations) {
+        this.reservations = reservations;
+    }
 
     public CarTypeDto getType() {
         return type;

@@ -2,24 +2,24 @@ package sk.stuba.fei.uim.vsa.pr2.web.response.factory;
 
 import sk.stuba.fei.uim.vsa.pr2.entities.Reservation;
 import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.ReservationDto;
+import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.ReservationIdDto;
 
-public class ReservationFactory implements ResponseFactory<Reservation, ReservationDto> {
+public class ReservationIdFactory implements ResponseFactory<Reservation, ReservationIdDto> {
     @Override
-    public ReservationDto transformToDto(Reservation entity) {
-        ReservationDto reservationDto = new ReservationDto();
+    public ReservationIdDto transformToDto(Reservation entity) {
+        ReservationIdDto reservationDto = new ReservationIdDto();
         reservationDto.setId(entity.getReservationId());
         reservationDto.setStart(entity.getStartDate());
         reservationDto.setEnd(entity.getEndDate());
         reservationDto.setPrices(entity.getCost());
         CarIdFactory carFactory = new CarIdFactory();
         reservationDto.setCar(carFactory.transformToDto(entity.getCar()));
-        ParkingSpotFactory parkingSpotFactory = new ParkingSpotFactory();
-        reservationDto.setSpot(parkingSpotFactory.transformToDto(entity.getParkingSpot()));
+        reservationDto.setSpot(entity.getParkingSpot().getParkingSpotId());
         return reservationDto;
     }
 
     @Override
-    public Reservation transformToEntity(ReservationDto dto) {
+    public Reservation transformToEntity(ReservationIdDto dto) {
         return null;
     }
 }

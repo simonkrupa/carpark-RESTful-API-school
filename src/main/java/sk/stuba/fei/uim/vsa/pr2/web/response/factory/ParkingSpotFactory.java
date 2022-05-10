@@ -2,6 +2,12 @@ package sk.stuba.fei.uim.vsa.pr2.web.response.factory;
 
 import sk.stuba.fei.uim.vsa.pr2.entities.ParkingSpot;
 import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.ParkingSpotDto;
+import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.ReservationDto;
+import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.ReservationIdDto;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ParkingSpotFactory implements ResponseFactory<ParkingSpot, ParkingSpotDto> {
     @Override
@@ -19,7 +25,10 @@ public class ParkingSpotFactory implements ResponseFactory<ParkingSpot, ParkingS
         }else{
             parkingSpotDto.setFree(false);
         }
-        //reservations
+        ReservationIdFactory reservationFactory = new ReservationIdFactory();
+        List<ReservationIdDto> reservationIdDtos = new ArrayList<>();
+        entity.getReservations().forEach(reservation -> reservationIdDtos.add(reservationFactory.transformToDto(reservation)));
+        parkingSpotDto.setReservations(reservationIdDtos);
         return parkingSpotDto;
     }
 

@@ -11,8 +11,15 @@ public class CarDtoId extends Dto{
     private String colour;
     private Long type;
     private Long owner;
-//    private List<ReservationDto> reservations;
+    private List<Long> reservations;
 
+    public List<Long> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<Long> reservations) {
+        this.reservations = reservations;
+    }
 
     public Long getType() {
         return type;

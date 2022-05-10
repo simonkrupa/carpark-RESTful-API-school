@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.util.Date;
 
-public class ReservationDto extends Dto{
+public class ReservationIdDto extends Dto{
     @JsonFormat(pattern="yyyy-MM-dd")
     private Date start;
     @JsonFormat(pattern="yyyy-MM-dd")
     private Date end;
     private Integer prices;
     private CarDtoId car;
-    private ParkingSpotDto spot;
+    private Long spot;
 
     public Date getStart() {
         return start;
@@ -45,11 +45,11 @@ public class ReservationDto extends Dto{
         this.car = car;
     }
 
-    public ParkingSpotDto getSpot() {
+    public Long getSpot() {
         return spot;
     }
 
-    public void setSpot(ParkingSpotDto spot) {
+    public void setSpot(Long spot) {
         this.spot = spot;
     }
 }

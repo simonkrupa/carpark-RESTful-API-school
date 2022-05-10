@@ -322,7 +322,10 @@ public class CarParkResource {
             //test ked je null floors
             for (CarParkFloor carParkFloor : carPark.getFloors()) {
                 List<ParkingSpot> parkingSpots = carParkService.getParkingSpots(carPark.getCarParkId(), carParkFloor.getFloorIdentifier());
-                spots.addAll(parkingSpots);
+                for(ParkingSpot spot : parkingSpots){
+                    spots.add(spot);
+                }
+//                spots.addAll(parkingSpots);
             }
         }
         List<ParkingSpotDto> parkingSpotDtos = new ArrayList<>();

@@ -5,6 +5,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "RESERVATION")
+@NamedQuery(name = "findAllReservations", query = "SELECT r from Reservation r")
 public class Reservation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
