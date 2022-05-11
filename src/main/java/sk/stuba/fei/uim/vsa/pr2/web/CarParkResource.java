@@ -195,11 +195,15 @@ public class CarParkResource {
                     .status(Response.Status.UNAUTHORIZED)
                     .build();
         }
-        if(id==null){return Response.noContent().build();}
+        if(id==null){
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .build();
+        }
         CarPark carPark = carParkService.deleteCarPark(id);
         if(carPark==null){
             return Response
-                    .status(Response.Status.NOT_FOUND)
+                    .status(Response.Status.BAD_REQUEST)
                     .build();
         }
         return Response
@@ -318,7 +322,11 @@ public class CarParkResource {
                     .status(Response.Status.UNAUTHORIZED)
                     .build();
         }
-        if(id==null){return Response.noContent().build();}
+        if(id==null){
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .build();
+        }
         List<CarParkFloor> floors = carParkService.getCarParkFloors(id);
         if(floors==null){
             return Response

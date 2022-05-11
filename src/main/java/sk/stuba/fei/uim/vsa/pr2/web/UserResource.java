@@ -56,7 +56,7 @@ public class UserResource {
                 List<User> users = carParkService.getUsers();
                 if (users == null) {
                     return Response
-                            .status(Response.Status.BAD_REQUEST)
+                            .status(Response.Status.NOT_FOUND)
                             .build();
                 }
                 List<UserIdDto> userDtos = users.stream().map(userIdFactory::transformToDto).collect(Collectors.toList());
