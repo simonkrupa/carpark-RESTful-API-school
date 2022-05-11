@@ -237,14 +237,18 @@ public class CarParkService extends  AbstractCarParkService{
                 parkingSpot.setCarType((CarType) carType);
                 ((CarType) carType).addParkingSpot(parkingSpot);
                 carParkFloor.addParkingSpot(parkingSpot);
-                manager.getTransaction().begin();
-                manager.persist(parkingSpot);
-                manager.getTransaction().commit();
-                manager.getTransaction().begin();
-                manager.merge(carType);
-                manager.getTransaction().commit();
-                manager.close();
-                return parkingSpot;
+                try {
+                    manager.getTransaction().begin();
+                    manager.persist(parkingSpot);
+                    manager.getTransaction().commit();
+                    manager.getTransaction().begin();
+                    manager.merge(carType);
+                    manager.getTransaction().commit();
+                    manager.close();
+                    return parkingSpot;
+                }catch (Exception e){
+                    return null;
+                }
             }
         }
         manager.close();
@@ -866,10 +870,12 @@ public class CarParkService extends  AbstractCarParkService{
                     manager.close();
                     return null;
                 }
-                for (ParkingSpot ps : carParkFloor.getParkingSpots().stream().collect(Collectors.toList())){
-                    if (ps.getSpotIdentifier().equals(spotIdentifier)){
-                        manager.close();
-                        return null;
+                for (CarParkFloor cpf: carPark.getFloors()) {
+                    for (ParkingSpot ps : cpf.getParkingSpots()) {
+                        if (ps.getSpotIdentifier().equals(spotIdentifier)) {
+                            manager.close();
+                            return null;
+                        }
                     }
                 }
                 ParkingSpot parkingSpot = new ParkingSpot();
@@ -883,14 +889,18 @@ public class CarParkService extends  AbstractCarParkService{
                 carParkFloor.addParkingSpot(parkingSpot);
                 parkingSpot.setCarType(carType);
                 carType.addParkingSpot(parkingSpot);
-                manager.getTransaction().begin();
-                manager.persist(parkingSpot);
-                manager.getTransaction().commit();
-                manager.getTransaction().begin();
-                manager.merge(carType);
-                manager.getTransaction().commit();
-                manager.close();
-                return parkingSpot;
+                try {
+                    manager.getTransaction().begin();
+                    manager.persist(parkingSpot);
+                    manager.getTransaction().commit();
+                    manager.getTransaction().begin();
+                    manager.merge(carType);
+                    manager.getTransaction().commit();
+                    manager.close();
+                    return parkingSpot;
+                }catch (Exception e){
+                    return null;
+                }
             }
         }
         manager.close();
