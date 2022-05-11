@@ -3,6 +3,7 @@ package sk.stuba.fei.uim.vsa.pr2.web;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import sk.stuba.fei.uim.vsa.pr2.entities.Car;
@@ -19,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static sk.stuba.fei.uim.vsa.pr2.BasicAuth.getAuth;
+
 @Path("/cars")
 public class CarResource {
     private static final String EMPTY_RESPONSE = "{}";
@@ -31,7 +34,12 @@ public class CarResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAll(@QueryParam("user") Long id, @QueryParam("vrp") String vrp) {
+    public Response getAll(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @QueryParam("user") Long id, @QueryParam("vrp") String vrp) {
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         List<CarDtoId> carDtos = new ArrayList<>();
         if (id == null && vrp == null) {
             try {
@@ -129,7 +137,12 @@ public class CarResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getById(@PathParam("id") Long id) {
+    public Response getById(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id) {
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         if(id == null){
             return Response
                     .status(Response.Status.NOT_FOUND)
@@ -156,7 +169,12 @@ public class CarResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(String body) {
+    public Response create(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, String body) {
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         try {
             Boolean created = false;
             Boolean createdCarType = false;
@@ -235,7 +253,12 @@ public class CarResource {
 
     @DELETE
     @Path("/{id}")
-    public Response delete(@PathParam("id") Long id){
+    public Response delete(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         if(id==null){
             return Response
                     .status(Response.Status.BAD_REQUEST)

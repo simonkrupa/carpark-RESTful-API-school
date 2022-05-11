@@ -2,6 +2,7 @@ package sk.stuba.fei.uim.vsa.pr2.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import sk.stuba.fei.uim.vsa.pr2.entities.ParkingSpot;
@@ -9,6 +10,8 @@ import sk.stuba.fei.uim.vsa.pr2.service.CarParkService;
 import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.ParkingSpotDto;
 import sk.stuba.fei.uim.vsa.pr2.web.response.factory.CarFactory;
 import sk.stuba.fei.uim.vsa.pr2.web.response.factory.ParkingSpotFactory;
+
+import static sk.stuba.fei.uim.vsa.pr2.BasicAuth.getAuth;
 
 @Path("/parkingspots")
 public class ParkingSpotResource {
@@ -22,7 +25,12 @@ public class ParkingSpotResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getSpotById(@PathParam("id") Long id){
+    public Response getSpotById(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         if(id==null){
             return Response
                     .status(Response.Status.BAD_REQUEST)
@@ -49,7 +57,12 @@ public class ParkingSpotResource {
 
     @DELETE
     @Path("/{id}")
-    public Response delete(@PathParam("id") Long id){
+    public Response delete(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         if(id==null){
             return Response
                     .status(Response.Status.BAD_REQUEST)

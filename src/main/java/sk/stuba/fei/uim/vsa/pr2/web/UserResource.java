@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import sk.stuba.fei.uim.vsa.pr2.entities.Car;
@@ -19,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static sk.stuba.fei.uim.vsa.pr2.BasicAuth.getAuth;
+
 @Path("/users")
 public class UserResource {
 
@@ -29,8 +32,13 @@ public class UserResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAll(@QueryParam("email") String email){
-            try {
+    public Response getAll(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @QueryParam("email") String email){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
+        try {
                 if (email != null) {
                     User user = carParkService.getUser(email);
                     if (user == null) {
@@ -66,7 +74,12 @@ public class UserResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getById(@PathParam("id") Long id){
+    public Response getById(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         try {
             User user = carParkService.getUser(id);
             if (user == null) {
@@ -88,7 +101,12 @@ public class UserResource {
 
     @DELETE
     @Path("/{id}")
-    public Response delete(@PathParam("id") Long id){
+    public Response delete(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         try{
             if(id==null){
                 return Response
@@ -115,7 +133,12 @@ public class UserResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(String body){
+    public Response create(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, String body){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         try{
             UserDto userDto = json.readValue(body, UserDto.class);
             User user = carParkService.createUser(userDto.getFirstName(), userDto.getLastName(), userDto.getEmail());

@@ -8,6 +8,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import sk.stuba.fei.uim.vsa.pr2.BasicAuth;
 import sk.stuba.fei.uim.vsa.pr2.entities.Reservation;
 import sk.stuba.fei.uim.vsa.pr2.entities.User;
 import sk.stuba.fei.uim.vsa.pr2.service.CarParkService;
@@ -25,6 +26,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static sk.stuba.fei.uim.vsa.pr2.BasicAuth.compareId;
+import static sk.stuba.fei.uim.vsa.pr2.BasicAuth.getAuth;
+
 @Path("/reservations")
 public class ReservationResource {
 
@@ -35,7 +39,12 @@ public class ReservationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAll(@QueryParam("user") Long user, @QueryParam("spot") Long spot, @QueryParam("date") String date){
+    public Response getAll(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @QueryParam("user") Long user, @QueryParam("spot") Long spot, @QueryParam("date") String date){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         //TODO DATE
         if((spot!=null && date==null) || (spot==null && date!=null)){
             return Response
@@ -128,7 +137,12 @@ public class ReservationResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getById(@PathParam("id") Long id){
+    public Response getById(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         if(id==null){
             return Response
                     .status(Response.Status.NOT_FOUND)
@@ -150,7 +164,12 @@ public class ReservationResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(String body){
+    public Response create(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, String body){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         try{
             ReservationDto reservationDto = json.readValue(body, ReservationDto.class);
             Reservation reservation = carParkService.createReservation(reservationDto.getSpot().getId(), reservationDto.getCar().getId());
@@ -175,21 +194,16 @@ public class ReservationResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response endReservation(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id){
+        if(!compareId(authorization, id)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         try {
             Reservation r = carParkService.getReservationById(id);
             if(r==null){
                 return Response
                         .status(Response.Status.BAD_REQUEST)
-                        .build();
-            }
-            if(authorization==null){
-                return Response
-                        .status(Response.Status.UNAUTHORIZED)
-                        .build();
-            }
-            if(!getEmail(authorization).equals(r.getCar().getUser().getEmail())){
-                return Response
-                        .status(Response.Status.UNAUTHORIZED)
                         .build();
             }
             Reservation reservation = carParkService.endReservation(id);
@@ -207,13 +221,6 @@ public class ReservationResource {
                     .status(Response.Status.BAD_REQUEST)
                     .build();
         }
-    }
-
-
-    private String getEmail(String authHeader) {
-        String base64Encoded = authHeader.substring("Basic ".length());
-        String decoded = new String(Base64.getDecoder().decode(base64Encoded));
-        return decoded.split(":")[0];
     }
 
 }

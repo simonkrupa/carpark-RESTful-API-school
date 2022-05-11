@@ -3,13 +3,13 @@ package sk.stuba.fei.uim.vsa.pr2.web;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import sk.stuba.fei.uim.vsa.pr2.entities.*;
 import sk.stuba.fei.uim.vsa.pr2.service.CarParkService;
 import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.CarParkDto;
 import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.CarParkFloorDto;
-import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.MessageDto;
 import sk.stuba.fei.uim.vsa.pr2.web.response.dtos.ParkingSpotDto;
 import sk.stuba.fei.uim.vsa.pr2.web.response.factory.CarParkFactory;
 import sk.stuba.fei.uim.vsa.pr2.web.response.factory.CarParkFloorFactory;
@@ -17,8 +17,9 @@ import sk.stuba.fei.uim.vsa.pr2.web.response.factory.ParkingSpotFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import static sk.stuba.fei.uim.vsa.pr2.BasicAuth.getAuth;
 
 @Path("/carparks")
 public class CarParkResource {
@@ -33,7 +34,12 @@ public class CarParkResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAll(@QueryParam("name") String carParkName) {
+    public Response getAll(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @QueryParam("name") String carParkName) {
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         List<CarParkDto> carParkDtos = new ArrayList<>();
         if(carParkName==null) {
             try {
@@ -78,7 +84,12 @@ public class CarParkResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getById(@PathParam("id") Long id) {
+    public Response getById(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id) {
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         if(id == null){
             return Response
                     .status(Response.Status.BAD_REQUEST)
@@ -107,7 +118,12 @@ public class CarParkResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(String body) {
+    public Response create(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, String body) {
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         try {
             Boolean createdCarType = false;
             CarParkDto dto = json.readValue(body, CarParkDto.class);
@@ -173,7 +189,12 @@ public class CarParkResource {
 
     @DELETE
     @Path("/{id}")
-    public Response delete(@PathParam("id") Long id){
+    public Response delete(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         if(id==null){return Response.noContent().build();}
         CarPark carPark = carParkService.deleteCarPark(id);
         if(carPark==null){
@@ -189,7 +210,12 @@ public class CarParkResource {
     @GET
     @Path("/{id}/floors")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getFloorsByCarParkId(@PathParam("id") Long id){
+    public Response getFloorsByCarParkId(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         if(id==null){
             return Response
                     .status(Response.Status.BAD_REQUEST)
@@ -222,7 +248,12 @@ public class CarParkResource {
     @Path("/{id}/floors")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createFloors(@PathParam("id") Long id, String body){
+    public Response createFloors(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id, String body){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         if(id==null){
             return Response
                     .status(Response.Status.BAD_REQUEST)
@@ -279,7 +310,12 @@ public class CarParkResource {
 
     @DELETE
     @Path("/{id}/floors/{identifier}")
-    public Response deleteFloor(@PathParam("id") Long id, @PathParam("identifier") String identifier){
+    public Response deleteFloor(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id, @PathParam("identifier") String identifier){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         if(id==null){return Response.noContent().build();}
         List<CarParkFloor> floors = carParkService.getCarParkFloors(id);
         if(floors==null){
@@ -303,7 +339,12 @@ public class CarParkResource {
     @GET
     @Path("/{id}/spots")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getSpots(@PathParam("id") Long id, @QueryParam("free") Boolean free){
+    public Response getSpots(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id, @QueryParam("free") Boolean free){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         CarPark carPark = carParkService.getCarPark(id);
         if(carPark==null){
             return Response
@@ -342,7 +383,12 @@ public class CarParkResource {
     @GET
     @Path("/{id}/floors/{identifier}/spots")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getSpots(@PathParam("id")Long id, @PathParam("identifier") String identifier){
+    public Response getSpots(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id")Long id, @PathParam("identifier") String identifier){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         if(id==null || identifier == null){
             return Response
                     .status(Response.Status.BAD_REQUEST)
@@ -378,7 +424,12 @@ public class CarParkResource {
     @Path("/{id}/floors/{identifier}/spots")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createSpot(@PathParam("id") Long id, @PathParam("identifier") String identifier, String body){
+    public Response createSpot(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id, @PathParam("identifier") String identifier, String body){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         if(id == null && identifier == null){
             return Response
                     .status(Response.Status.BAD_REQUEST)

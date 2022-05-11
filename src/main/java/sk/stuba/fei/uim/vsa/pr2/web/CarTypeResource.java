@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import sk.stuba.fei.uim.vsa.pr2.entities.CarType;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static sk.stuba.fei.uim.vsa.pr2.BasicAuth.getAuth;
+
 @Path("/cartypes")
 public class CarTypeResource {
     private final CarParkService carParkService = new CarParkService();
@@ -23,7 +26,12 @@ public class CarTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAll(@QueryParam("name") String name){
+    public Response getAll(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @QueryParam("name") String name){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         if(name!=null){
             try {
                 CarType carType = carParkService.getCarType(name);
@@ -68,7 +76,12 @@ public class CarTypeResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getById(@PathParam("id") Long id){
+    public Response getById(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         if(id==null){
             return Response
                     .status(Response.Status.BAD_REQUEST)
@@ -95,7 +108,12 @@ public class CarTypeResource {
 
     @DELETE
     @Path("/{id}")
-    public Response delete(@PathParam("id") Long id){
+    public Response delete(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         if(id==null){
             return Response
                     .status(Response.Status.BAD_REQUEST)
@@ -121,7 +139,12 @@ public class CarTypeResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(String body){
+    public Response create(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, String body){
+        if(!getAuth(authorization)){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
         try{
             CarTypeDto carTypeDto = json.readValue(body, CarTypeDto.class);
             CarType carType = carParkService.createCarType(carTypeDto.getName());
