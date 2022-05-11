@@ -48,7 +48,6 @@ public class CarParkResource {
                     CarParkDto carParkDto = factory.transformToDto(carPark);
                     carParkDtos.add(carParkDto);
                 });
-//            return json.writeValueAsString(carParks);
                 return Response
                         .status(Response.Status.OK)
                         .entity(carParkDtos)
@@ -363,20 +362,17 @@ public class CarParkResource {
         }
         List<ParkingSpot> spots = new ArrayList<>();
         if(free!=null) {
-            //ak je free nieco divne
             if (free) {
                 spots.addAll(carParkService.getAvailableSpots(carPark.getCarParkId()));
             } else {
                 spots.addAll(carParkService.getOccupiedSpots(carPark.getCarParkId()));
             }
         }else {
-            //test ked je null floors
             for (CarParkFloor carParkFloor : carPark.getFloors()) {
                 List<ParkingSpot> parkingSpots = carParkService.getParkingSpots(carPark.getCarParkId(), carParkFloor.getFloorIdentifier());
                 for(ParkingSpot spot : parkingSpots){
                     spots.add(spot);
                 }
-//                spots.addAll(parkingSpots);
             }
         }
         List<ParkingSpotDto> parkingSpotDtos = new ArrayList<>();
