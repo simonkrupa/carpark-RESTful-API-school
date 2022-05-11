@@ -1,6 +1,7 @@
 package sk.stuba.fei.uim.vsa.pr2.web.response.dtos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Date;
 
@@ -12,6 +13,14 @@ public class ReservationDto extends Dto{
     private Integer prices;
     private CarDto car;
     private ParkingSpotDto spot;
+
+    public ReservationDto() {
+    }
+
+    public ReservationDto(@JsonProperty(value = "car", required = true) CarDto car, @JsonProperty(value = "spot", required = true) ParkingSpotDto spot) {
+        this.car = car;
+        this.spot = spot;
+    }
 
     public Date getStart() {
         return start;

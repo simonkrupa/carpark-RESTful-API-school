@@ -1,5 +1,8 @@
 package sk.stuba.fei.uim.vsa.pr2.web.response.dtos;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class UserDto extends Dto{
@@ -7,6 +10,17 @@ public class UserDto extends Dto{
     private String lastName;
     private String email;
     private List<CarDto> cars;
+
+    public UserDto() {
+    }
+
+    @JsonCreator
+    public UserDto(@JsonProperty(value = "firstName", required = true) String firstName, @JsonProperty(value = "lastName", required = true) String lastName, @JsonProperty(value = "email", required = true) String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+    }
+
 
     public String getFirstName() {
         return firstName;

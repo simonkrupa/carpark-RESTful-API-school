@@ -1,5 +1,7 @@
 package sk.stuba.fei.uim.vsa.pr2.web.response.dtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class ParkingSpotDto extends Dto{
@@ -9,6 +11,16 @@ public class ParkingSpotDto extends Dto{
     private CarTypeDto type;
     private Boolean free;
     private List<ReservationIdDto> reservations;
+
+    public ParkingSpotDto() {
+    }
+
+
+    public ParkingSpotDto(@JsonProperty(value = "identifier", required = true) String identifier, @JsonProperty(value = "carParkFloor", required = true) String carParkFloor, @JsonProperty(value = "type", required = true) CarTypeDto type) {
+        this.identifier = identifier;
+        this.carParkFloor = carParkFloor;
+        this.type = type;
+    }
 
     public List<ReservationIdDto> getReservations() {
         return reservations;
