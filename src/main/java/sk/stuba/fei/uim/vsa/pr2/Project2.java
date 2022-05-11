@@ -52,7 +52,7 @@ public class Project2 {
     public static void postStart() {
         // TODO sem napíš akékoľvek nastavenia, či volania, ktoré sa majú udiať ihneď po štarte
         CarParkService carParkService = new CarParkService();
-        carParkService.createUser("alojz", "mrkva","admin@vsa.sk");
+        carParkService.createUser("admin", "last","admin@vsa.sk");
     }
 
 }

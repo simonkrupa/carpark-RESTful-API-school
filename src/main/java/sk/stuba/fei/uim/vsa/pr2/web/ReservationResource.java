@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import sk.stuba.fei.uim.vsa.pr2.entities.Reservation;
@@ -19,6 +20,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -74,6 +76,7 @@ public class ReservationResource {
                     .build();
         }
         if(user!=null){
+            //TODO check if valid user
             List<Reservation> reservations = carParkService.getAllMyReservations(user);
             if(reservations==null){
                 return Response
@@ -171,8 +174,24 @@ public class ReservationResource {
     @Path("/{id}/end")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response endReservation(@PathParam("id") Long id){
+    public Response endReservation(@HeaderParam(HttpHeaders.AUTHORIZATION) String authorization, @PathParam("id") Long id){
         try {
+            Reservation r = carParkService.getReservationById(id);
+            if(r==null){
+                return Response
+                        .status(Response.Status.BAD_REQUEST)
+                        .build();
+            }
+            if(authorization==null){
+                return Response
+                        .status(Response.Status.UNAUTHORIZED)
+                        .build();
+            }
+            if(!getEmail(authorization).equals(r.getCar().getUser().getEmail())){
+                return Response
+                        .status(Response.Status.UNAUTHORIZED)
+                        .build();
+            }
             Reservation reservation = carParkService.endReservation(id);
             if (reservation == null) {
                 return Response
@@ -189,4 +208,12 @@ public class ReservationResource {
                     .build();
         }
     }
+
+
+    private String getEmail(String authHeader) {
+        String base64Encoded = authHeader.substring("Basic ".length());
+        String decoded = new String(Base64.getDecoder().decode(base64Encoded));
+        return decoded.split(":")[0];
+    }
+
 }

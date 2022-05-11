@@ -11,7 +11,7 @@ public class ReservationFactory implements ResponseFactory<Reservation, Reservat
         reservationDto.setStart(entity.getStartDate());
         reservationDto.setEnd(entity.getEndDate());
         reservationDto.setPrices(entity.getCost());
-        CarIdFactory carFactory = new CarIdFactory();
+        CarFactory carFactory = new CarFactory();
         reservationDto.setCar(carFactory.transformToDto(entity.getCar()));
         ParkingSpotFactory parkingSpotFactory = new ParkingSpotFactory();
         reservationDto.setSpot(parkingSpotFactory.transformToDto(entity.getParkingSpot()));

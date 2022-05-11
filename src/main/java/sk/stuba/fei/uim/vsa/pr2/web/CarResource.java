@@ -162,7 +162,13 @@ public class CarResource {
             Boolean createdCarType = false;
             CarDto dto = json.readValue(body, CarDto.class);
             if(dto.getOwner()!=null) {
-                User user = carParkService.getUser(dto.getOwner().getEmail());
+                //TODO podla idcka
+                User user = null;
+                if(dto.getOwner().getId()!=null) {
+                    user = carParkService.getUser(dto.getOwner().getId());
+                }else {
+                    user = carParkService.getUser(dto.getOwner().getEmail());
+                }
                 if(dto.getOwner().getEmail()==null) {
                     if(dto.getOwner().getId()==null){
                         return Response

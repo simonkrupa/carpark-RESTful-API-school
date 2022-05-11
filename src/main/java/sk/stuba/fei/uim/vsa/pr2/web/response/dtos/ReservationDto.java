@@ -10,7 +10,7 @@ public class ReservationDto extends Dto{
     @JsonFormat(pattern="yyyy-MM-dd")
     private Date end;
     private Integer prices;
-    private CarDtoId car;
+    private CarDto car;
     private ParkingSpotDto spot;
 
     public Date getStart() {
@@ -37,11 +37,20 @@ public class ReservationDto extends Dto{
         this.prices = prices;
     }
 
-    public CarDtoId getCar() {
+//    public CarDtoId getCar() {
+//        return car;
+//    }
+//
+//    public void setCar(CarDtoId car) {
+//        this.car = car;
+//    }
+
+
+    public CarDto getCar() {
         return car;
     }
 
-    public void setCar(CarDtoId car) {
+    public void setCar(CarDto car) {
         this.car = car;
     }
 
