@@ -3,6 +3,7 @@ package sk.stuba.fei.uim.vsa.pr2.service;
 import sk.stuba.fei.uim.vsa.pr2.entities.*;
 
 import javax.persistence.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -701,8 +702,16 @@ public class CarParkService extends  AbstractCarParkService{
             reservations.addAll(parkingSpot.getReservations());
             List<Reservation> result = new ArrayList<>();
             for (Reservation res:reservations) {
-                if(date.getDay() == res.getStartDate().getDay()){
-                    result.add(res);
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(date);
+                Calendar startCalendar = Calendar.getInstance();
+                startCalendar.setTime(res.getStartDate());
+                if(calendar.get(Calendar.DAY_OF_MONTH) == startCalendar.get(Calendar.DAY_OF_MONTH)){
+                    if(calendar.get(Calendar.MONTH) == startCalendar.get(Calendar.MONTH)){
+                        if(calendar.get(Calendar.YEAR) == startCalendar.get(Calendar.YEAR)){
+                            result.add(res);
+                        }
+                    }
                 }
             }
             return result;

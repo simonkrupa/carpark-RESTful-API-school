@@ -149,30 +149,36 @@ public class UserResource {
             }
             if(userDto.getCars()!=null){
                 for(CarDto carDto : userDto.getCars()){
-                    Car car = new Car();
-                    if(carDto.getType()!=null){
-                        CarType carType = carParkService.getCarType(carDto.getType().getName());
-                        if(carType==null){
+                    if(carDto.getType()!=null) {
+                        CarType carType = null;
+                        if (carDto.getType().getId() != null) {
+                            carType = carParkService.getCarType(carDto.getType().getId());
+                            if (carType == null) {
+                                carParkService.deleteUser(userDto.getId());
+                                return Response
+                                        .status(Response.Status.BAD_REQUEST)
+                                        .build();
+                            }
+                        } else {
                             carType = carParkService.createCarType(carDto.getType().getName());
-                            if(carType==null){
-                                carParkService.deleteUser(user.getUserId());
+                            if (carType == null) {
+                                carParkService.deleteUser(userDto.getId());
                                 return Response
                                         .status(Response.Status.BAD_REQUEST)
                                         .build();
                             }
                         }
-                        car = carParkService.createCar(user.getUserId(), carDto.getBrand(), carDto.getModel(), carDto.getColour(), carDto.getVrp(), carType.getCarTypeId());
-                    }else {
-                        car = carParkService.createCar(user.getUserId(), carDto.getBrand(), carDto.getModel(), carDto.getColour(), carDto.getVrp());
-                    }
-                    if(car==null){
-                        carParkService.deleteUser(user.getUserId());
-                        if(carDto.getType()!=null){
-                            carParkService.deleteCarType(carParkService.getCarType(carDto.getType().getName()).getCarTypeId());
+                        Car car = carParkService.createCar(user.getUserId(), carDto.getBrand(), carDto.getModel(), carDto.getColour(), carDto.getVrp(), carType.getCarTypeId());
+                        if (car == null) {
+                            carParkService.deleteUser(user.getUserId());
+                            if (carDto.getType() != null) {
+                                carParkService.deleteCarType(carParkService.getCarType(carDto.getType().getName()).getCarTypeId());
+                            }
+                            //TODO mazat vsetky cartypy
+                            return Response
+                                    .status(Response.Status.BAD_REQUEST)
+                                    .build();
                         }
-                        return Response
-                                .status(Response.Status.BAD_REQUEST)
-                                .build();
                     }
                 }
             }

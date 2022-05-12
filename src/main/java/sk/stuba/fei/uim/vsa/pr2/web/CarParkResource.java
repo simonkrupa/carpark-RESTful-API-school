@@ -146,8 +146,16 @@ public class CarParkResource {
                         ParkingSpot ps = new ParkingSpot();
                         for(ParkingSpotDto parkingSpot : cpf.getSpots()){
                             if(parkingSpot.getType()!=null){
-                                CarType carType = carParkService.getCarType(parkingSpot.getType().getName());
-                                if(carType==null){
+                                CarType carType = null;
+                                if(parkingSpot.getType().getId()!=null) {
+                                    carType = carParkService.getCarType(parkingSpot.getType().getName());
+                                    if (carType == null) {
+                                        carParkService.deleteCarPark(cp.getCarParkId());
+                                        return Response
+                                                .status(Response.Status.BAD_REQUEST)
+                                                .build();
+                                    }
+                                }else {
                                     carType = carParkService.createCarType(parkingSpot.getType().getName());
                                     createdCarType = true;
                                     if(carType==null){
@@ -158,10 +166,9 @@ public class CarParkResource {
                                     }
                                 }
                                 ps = carParkService.createParkingSpot(cp.getCarParkId(), cpf.getIdentifier(), parkingSpot.getIdentifier(), carType.getCarTypeId());
-                            }else {
-                                ps = carParkService.createParkingSpot(cp.getCarParkId(), cpf.getIdentifier(), parkingSpot.getIdentifier());
                             }
                             if(ps==null){
+                                //TODO delete cartypy
                                 carParkService.deleteCarPark(cp.getCarParkId());
                                 if(createdCarType){
                                     carParkService.deleteCarType(carParkService.getCarType(parkingSpot.getType().getName()).getCarTypeId());
@@ -275,23 +282,30 @@ public class CarParkResource {
                 for (ParkingSpotDto spot : dto.getSpots()) {
                     ParkingSpot parkingSpot = new ParkingSpot();
                     if(spot.getType()!=null){
-                        CarType carType = carParkService.getCarType(spot.getType().getName());
-                        if(carType==null){
+                        CarType carType = null;
+                        if(spot.getType().getId()!=null) {
+                            carType = carParkService.getCarType(spot.getType().getId());
+                            if (carType == null) {
+                                carParkService.deleteCarParkFloor(carParkFloor.getCarParkFloorId());
+                                return Response
+                                        .status(Response.Status.BAD_REQUEST)
+                                        .build();
+                            }
+                        }else{
                             carType = carParkService.createCarType(spot.getType().getName());
-                            createdCarType = true;
                             if(carType==null){
                                 carParkService.deleteCarParkFloor(carParkFloor.getCarParkFloorId());
                                 return Response
                                         .status(Response.Status.BAD_REQUEST)
                                         .build();
                             }
+                            createdCarType=true;
                         }
                         parkingSpot = carParkService.createParkingSpot(id, dto.getIdentifier(), spot.getIdentifier(), carType.getCarTypeId());
-                    }else {
-                        parkingSpot = carParkService.createParkingSpot(id, dto.getIdentifier(), spot.getIdentifier());
                     }
                     if(parkingSpot == null) {
                         carParkService.deleteCarParkFloor(carParkFloor.getCarParkFloorId());
+                        //TODO vsetky cartypy delete
                         if(createdCarType){
                             carParkService.deleteCarType(carParkService.getCarType(spot.getType().getName()).getCarTypeId());
                         }
@@ -454,19 +468,24 @@ public class CarParkResource {
                 if(carParkFloor.getFloorIdentifier().equals(identifier)){
                     ParkingSpot parkingSpot = new ParkingSpot();
                     if(dto.getType()!=null){
-                        CarType carType = carParkService.getCarType(dto.getType().getName());
-                        if(carType==null){
-                            carType = carParkService.createCarType(dto.getType().getName());
-                            createdCarType = true;
+                        CarType carType = null;
+                        if(dto.getType().getId()!=null){
+                            carType = carParkService.getCarType(dto.getType().getId());
                             if(carType==null){
                                 return Response
                                         .status(Response.Status.BAD_REQUEST)
                                         .build();
                             }
+                        }else{
+                            carType = carParkService.createCarType(dto.getType().getName());
+                            if(carType==null){
+                                return Response
+                                        .status(Response.Status.BAD_REQUEST)
+                                        .build();
+                            }
+                            createdCarType = true;
                         }
                         parkingSpot = carParkService.createParkingSpot(id, identifier, dto.getIdentifier(), carType.getCarTypeId());
-                    }else {
-                        parkingSpot = carParkService.createParkingSpot(id, identifier, dto.getIdentifier());
                     }
                     if(parkingSpot==null){
                         if(createdCarType){

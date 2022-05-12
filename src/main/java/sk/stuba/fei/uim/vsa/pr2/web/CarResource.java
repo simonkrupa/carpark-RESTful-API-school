@@ -180,66 +180,62 @@ public class CarResource {
             Boolean createdCarType = false;
             CarDto dto = json.readValue(body, CarDto.class);
             if(dto.getOwner()!=null) {
-                //TODO podla idcka
                 User user = null;
-                if(dto.getOwner().getId()!=null) {
+                if(dto.getOwner().getId()!=null){
                     user = carParkService.getUser(dto.getOwner().getId());
-                }else {
-                    user = carParkService.getUser(dto.getOwner().getEmail());
-                }
-                if(dto.getOwner().getEmail()==null) {
-                    if(dto.getOwner().getId()==null){
-                        return Response
-                                .status(Response.Status.BAD_REQUEST)
-                                .build();
-                    }
-                    user = carParkService.getUser(dto.getOwner().getId());
-                }
-                if(user==null){
-                    user = carParkService.createUser(dto.getOwner().getFirstName(), dto.getOwner().getLastName(), dto.getOwner().getEmail());
-                    created = true;
                     if(user==null){
                         return Response
                                 .status(Response.Status.BAD_REQUEST)
                                 .build();
                     }
+                } else{
+                    user = carParkService.createUser(dto.getOwner().getFirstName(), dto.getOwner().getLastName(), dto.getOwner().getEmail());
+                    if(user==null){
+                        return Response
+                                .status(Response.Status.BAD_REQUEST)
+                                .build();
+                    }
+                    created = true;
                 }
-                Car car = new Car();
-                if(dto.getType()!=null){
-                    CarType carType = carParkService.getCarType(dto.getType().getName());
-                    if(carType==null){
+                if(dto.getType()!=null) {
+                    CarType carType = null;
+                    if (dto.getType().getId() != null) {
+                        carType = carParkService.getCarType(dto.getType().getId());
+                        if (carType == null) {
+                            return Response
+                                    .status(Response.Status.BAD_REQUEST)
+                                    .build();
+                        }
+                    } else {
                         carType = carParkService.createCarType(dto.getType().getName());
-                        createdCarType = true;
-                        if(carType==null){
-                            if(created){
+                        if (carType == null) {
+                            if (created) {
                                 carParkService.deleteUser(user.getUserId());
                             }
                             return Response
                                     .status(Response.Status.BAD_REQUEST)
                                     .build();
                         }
+                        createdCarType = true;
                     }
-                    car = carParkService.createCar(user.getUserId(), dto.getBrand(), dto.getModel(), dto.getColour(), dto.getVrp(), carType.getCarTypeId());
-                }else {
-                    car = carParkService.createCar(user.getUserId(), dto.getBrand(), dto.getModel(), dto.getColour(), dto.getVrp());
-                }
-                if(car==null){
-                    if(created) {
-                        carParkService.deleteUser(user.getUserId());
+                    Car car = carParkService.createCar(user.getUserId(), dto.getBrand(), dto.getModel(), dto.getColour(), dto.getVrp(), carType.getCarTypeId());
+                    if (car == null) {
+                        if (created) {
+                            carParkService.deleteUser(user.getUserId());
+                        }
+                        if (createdCarType) {
+                            carParkService.deleteCarType(dto.getType().getId());
+                        }
+                        return Response
+                                .status(Response.Status.BAD_REQUEST)
+                                .build();
                     }
-                    if(createdCarType){
-                        CarType carType2 = carParkService.getCarType(dto.getType().getName());
-                        carParkService.deleteCarType(carType2.getCarTypeId());
-                    }
+                    CarDtoId carResponse = carIdFactory.transformToDto(car);
                     return Response
-                        .status(Response.Status.BAD_REQUEST)
-                        .build();
+                            .status(Response.Status.CREATED)
+                            .entity(carResponse)
+                            .build();
                 }
-                CarDtoId carResponse = carIdFactory.transformToDto(car);
-                return Response
-                        .status(Response.Status.CREATED)
-                        .entity(carResponse)
-                        .build();
             }
             return Response
                     .status(Response.Status.BAD_REQUEST)
