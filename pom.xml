@@ -8,6 +8,14 @@
     <artifactId>b-vsa-ls22-project2</artifactId>
     <version>1.0.0</version>
 
+    <developers>
+        <developer>
+            <id>104510</id>
+            <name>Simon Krupa</name>
+            <email>xkrupas@stuba.sk</email>
+        </developer>
+    </developers>
+
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
