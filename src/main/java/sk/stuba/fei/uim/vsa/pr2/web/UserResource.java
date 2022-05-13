@@ -174,7 +174,6 @@ public class UserResource {
                             if (carDto.getType() != null) {
                                 carParkService.deleteCarType(carParkService.getCarType(carDto.getType().getName()).getCarTypeId());
                             }
-                            //TODO mazat vsetky cartypy
                             return Response
                                     .status(Response.Status.BAD_REQUEST)
                                     .build();

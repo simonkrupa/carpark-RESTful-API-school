@@ -45,7 +45,6 @@ public class ReservationResource {
                     .status(Response.Status.UNAUTHORIZED)
                     .build();
         }
-        //TODO DATE
         if((spot!=null && date==null) || (spot==null && date!=null)){
             return Response
                     .status(Response.Status.BAD_REQUEST)
@@ -85,7 +84,6 @@ public class ReservationResource {
                     .build();
         }
         if(user!=null){
-            //TODO check if valid user
             List<Reservation> reservations = carParkService.getAllMyReservations(user);
             if(reservations==null){
                 return Response

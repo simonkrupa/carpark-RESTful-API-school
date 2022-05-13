@@ -127,6 +127,7 @@ public class CarParkResource {
             Boolean createdCarType = false;
             CarParkDto dto = json.readValue(body, CarParkDto.class);
             CarPark carPark = factory.transformToEntity(dto);
+            List<Long> carTypeIds = new ArrayList<>();
             CarPark cp = carParkService.createCarPark(carPark.getName(), carPark.getAddress(), carPark.getPricePerHour());
             if(cp==null){
                 return Response
@@ -151,27 +152,36 @@ public class CarParkResource {
                                     carType = carParkService.getCarType(parkingSpot.getType().getName());
                                     if (carType == null) {
                                         carParkService.deleteCarPark(cp.getCarParkId());
+                                        for(Long id: carTypeIds) {
+                                            carParkService.deleteCarType(id);
+                                        }
                                         return Response
                                                 .status(Response.Status.BAD_REQUEST)
                                                 .build();
                                     }
                                 }else {
                                     carType = carParkService.createCarType(parkingSpot.getType().getName());
-                                    createdCarType = true;
+
                                     if(carType==null){
                                         carParkService.deleteCarPark(cp.getCarParkId());
+                                        for(Long id: carTypeIds) {
+                                            carParkService.deleteCarType(id);
+                                        }
                                         return Response
                                                 .status(Response.Status.BAD_REQUEST)
                                                 .build();
                                     }
+                                    createdCarType = true;
+                                    carTypeIds.add(carType.getCarTypeId());
                                 }
                                 ps = carParkService.createParkingSpot(cp.getCarParkId(), cpf.getIdentifier(), parkingSpot.getIdentifier(), carType.getCarTypeId());
                             }
                             if(ps==null){
-                                //TODO delete cartypy
                                 carParkService.deleteCarPark(cp.getCarParkId());
                                 if(createdCarType){
-                                    carParkService.deleteCarType(carParkService.getCarType(parkingSpot.getType().getName()).getCarTypeId());
+                                    for(Long id: carTypeIds) {
+                                        carParkService.deleteCarType(id);
+                                    }
                                 }
                                 return Response
                                         .status(Response.Status.BAD_REQUEST)
@@ -271,6 +281,7 @@ public class CarParkResource {
         }
         try {
             Boolean createdCarType = false;
+            List<Long> carTypeIds = new ArrayList<>();
             CarParkFloorDto dto = json.readValue(body, CarParkFloorDto.class);
             CarParkFloor carParkFloor = carParkService.createCarParkFloor(id, dto.getIdentifier());
             if(carParkFloor==null){
@@ -287,6 +298,9 @@ public class CarParkResource {
                             carType = carParkService.getCarType(spot.getType().getId());
                             if (carType == null) {
                                 carParkService.deleteCarParkFloor(carParkFloor.getCarParkFloorId());
+                                for(Long idct: carTypeIds) {
+                                    carParkService.deleteCarType(idct);
+                                }
                                 return Response
                                         .status(Response.Status.BAD_REQUEST)
                                         .build();
@@ -295,6 +309,9 @@ public class CarParkResource {
                             carType = carParkService.createCarType(spot.getType().getName());
                             if(carType==null){
                                 carParkService.deleteCarParkFloor(carParkFloor.getCarParkFloorId());
+                                for(Long idct: carTypeIds) {
+                                    carParkService.deleteCarType(idct);
+                                }
                                 return Response
                                         .status(Response.Status.BAD_REQUEST)
                                         .build();
@@ -305,9 +322,10 @@ public class CarParkResource {
                     }
                     if(parkingSpot == null) {
                         carParkService.deleteCarParkFloor(carParkFloor.getCarParkFloorId());
-                        //TODO vsetky cartypy delete
                         if(createdCarType){
-                            carParkService.deleteCarType(carParkService.getCarType(spot.getType().getName()).getCarTypeId());
+                            for(Long idct: carTypeIds) {
+                                carParkService.deleteCarType(idct);
+                            }
                         }
                         return Response
                                 .status(Response.Status.BAD_REQUEST)
